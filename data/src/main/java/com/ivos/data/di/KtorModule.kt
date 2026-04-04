@@ -9,6 +9,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.HttpHeaders
 import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.json
@@ -23,6 +25,14 @@ object KtorModule {
     @[Provides Singleton]
     fun provideHttpClient(): HttpClient {
         return HttpClient(OkHttp) {
+            install(Logging) {
+                logger = object : io.ktor.client.plugins.logging.Logger {
+                    override fun log(message: String) {
+                        println("KTOR LOG $message")
+                    }
+                }
+                level = LogLevel.ALL
+            }
 
             install(ContentNegotiation) {
                 json(Json {
@@ -40,8 +50,6 @@ object KtorModule {
                     append(HttpHeaders.Accept, "application/json")
                 }
             }
-
-            expectSuccess = true
 
             engine {
                 config {

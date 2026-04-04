@@ -3,8 +3,8 @@ package com.ivos.domain.usecase
 import com.ivos.domain.repo.WorkoutRepo
 import javax.inject.Inject
 
-class GetWorkoutUseCase @Inject constructor(
+class GetCurrentWorkoutUseCase @Inject constructor(
     private val repo: WorkoutRepo,
 ) {
-    suspend operator fun invoke(id: Int) = repo.getWorkoutById(id)
+    operator fun invoke() = repo.getCurrentWorkout()
 }
