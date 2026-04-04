@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class WorkoutResponseDto(
+data class WorkoutDto(
     @SerialName("timer")
     val timer: TimerDto,
 )
