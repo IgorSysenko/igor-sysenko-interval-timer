@@ -30,6 +30,7 @@ fun ScreenContainer(
             containerColor = MaterialTheme.colorScheme.background,
         ) {
             navHost()
+            it
         }
     }
 }

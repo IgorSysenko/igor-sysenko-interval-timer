@@ -1,6 +1,8 @@
 package com.ivos.presentation.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -14,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val LightColors = lightColorScheme(
+val AppColors = lightColorScheme(
     background = Color(0xFFF5F5F7),
     surface = Color(0xFFFFFFFF),
 
@@ -39,7 +41,7 @@ val AppTypography = Typography(
     ),
 
     // H1
-    headlineMedium = TextStyle(
+    headlineLarge = TextStyle(
         fontWeight = FontWeight.Bold,
         fontSize = 26.sp,
         lineHeight = 32.sp
@@ -74,6 +76,13 @@ val AppTypography = Typography(
     ),
 )
 
+val AppShapes = Shapes(
+    small = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(20.dp),
+    extraLarge = RoundedCornerShape(100.dp)
+)
+
 data class ExtraTypography(
     val state: TextStyle = TextStyle(
         fontWeight = FontWeight.Bold,
@@ -98,12 +107,7 @@ data class ExtraColors(
     val textTertiary: Color = Color(0xFF939BAA),
     val disabledBg: Color = Color(0xFFEDEDEF),
     val disabledText: Color = Color(0xFFB0B5BF),
-)
-
-data class AppShapes(
-    val small: Dp = 12.dp,
-    val medium: Dp = 16.dp,
-    val round: Dp = 100.dp,
+    val border: Color = Color(0x14000000)
 )
 
 data class AppSpacing(
@@ -116,7 +120,6 @@ data class AppSpacing(
 )
 
 val LocalSpacing = staticCompositionLocalOf { AppSpacing() }
-val LocalShapes = staticCompositionLocalOf { AppShapes() }
 val LocalExtraColors = staticCompositionLocalOf { ExtraColors() }
 val LocalExtraTypography = staticCompositionLocalOf { ExtraTypography() }
 
@@ -126,13 +129,13 @@ fun IgorSysenkoIntervalTimerTheme(
 ) {
     CompositionLocalProvider(
         LocalSpacing provides AppSpacing(),
-        LocalShapes provides AppShapes(),
         LocalExtraColors provides ExtraColors(),
         LocalExtraTypography provides ExtraTypography()
     )  {
         MaterialTheme(
-            colorScheme = LightColors,
+            colorScheme = AppColors,
             typography = AppTypography,
+            shapes = AppShapes,
             content = content
         )
     }
