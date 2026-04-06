@@ -142,7 +142,7 @@ fun IntervalsList(
                 isPaused = workoutState == WorkoutState.PAUSED,
                 isFinished = workoutState == WorkoutState.COMPLETED,
                 progress = if (isActive) (intervalElapsedTime / interval.time.toFloat()) else 0f,
-                intervalRemainingTime = intervalRemainingTime,
+                intervalRemainingTime = intervalElapsedTime, //intervalRemainingTime?
             )
 
             if (index == intervals.lastIndex) {
