@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -10,11 +11,34 @@ android {
         version = release(36)
     }
 
+    android {
+        buildFeatures {
+            buildConfig = true
+        }
+    }
+
     defaultConfig {
         minSdk = 26
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"https://71-cl5.tz.testing.place/\""
+        )
+
+        buildConfigField(
+            "String",
+            "APP_TOKEN",
+            "\"test-app-token\""
+        )
+        buildConfigField(
+            "String",
+            "AUTH_TOKEN",
+            "\"test-token\""
+        )
     }
 
     buildTypes {
@@ -44,6 +68,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)

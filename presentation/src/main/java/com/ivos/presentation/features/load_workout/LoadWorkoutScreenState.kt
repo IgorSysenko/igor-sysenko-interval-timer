@@ -1,0 +1,13 @@
+package com.ivos.presentation.features.load_workout
+
+import com.ivos.domain.model.Workout
+
+data class LoadWorkoutScreenState(
+    val isLoading: Boolean = false,
+    val isError: Boolean = false,
+    val isLoaded: Boolean = false,
+    val workoutId: String = "68",
+    val workout: Workout? = null,
+)
+
+const val MAX_ID_LENGTH = 20
