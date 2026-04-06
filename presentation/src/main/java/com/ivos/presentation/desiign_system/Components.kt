@@ -212,7 +212,7 @@ fun IntervalItem(
         ) {
             Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(28.dp)
                     .clip(MaterialTheme.shapes.extraLarge)
                     .background(
                         when {

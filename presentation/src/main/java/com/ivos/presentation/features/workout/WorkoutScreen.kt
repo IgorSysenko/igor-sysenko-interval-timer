@@ -1,5 +1,6 @@
 package com.ivos.presentation.features.workout
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ivos.presentation.R
+import com.ivos.presentation.desiign_system.CompletedWorkoutTabsRow
 import com.ivos.presentation.desiign_system.IntervalListHeaderRow
 import com.ivos.presentation.desiign_system.IntervalsList
 import com.ivos.presentation.desiign_system.TimerCard
@@ -125,6 +127,15 @@ fun WorkoutScreen(
             TimerProgressBar(
                 percent = state.workoutProgress.elapsedTime.toFloat() / (state.workout.timer.totalTime.takeIf { it > 0 } ?: 1),
                 workoutState = state.workoutState
+            )
+        }
+
+        AnimatedVisibility(
+            visible = state.workoutState == WorkoutState.COMPLETED
+        ) {
+            CompletedWorkoutTabsRow(
+                totalTime = state.workout.timer.totalTime,
+                intervalsCount = state.workout.timer.intervals.size
             )
         }
 

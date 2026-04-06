@@ -8,7 +8,8 @@ import com.ivos.presentation.features.workout.WorkoutState
 @Composable
 fun getIntervalString(
     intervalCount: Int,
-) = "$intervalCount ${stringResource(when (intervalCount) {
+    withCount: Boolean = true,
+) = "${if (withCount) "$intervalCount " else ""}${stringResource(when (intervalCount) {
     1 -> R.string.intervals_list_count_1
     2, 3, 4 -> R.string.intervals_list_count_2_4
     else ->  R.string.intervals_list_count_many
