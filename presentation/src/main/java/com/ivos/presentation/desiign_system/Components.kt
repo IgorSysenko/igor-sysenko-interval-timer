@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -119,11 +118,12 @@ fun TimerCard(
 
 @Composable
 fun IntervalsList(
+    modifier: Modifier = Modifier,
     intervals: List<Interval>,
     currentIndex: Int,
-    isPaused: Boolean,
-    progress: Float = 0f,
-    modifier: Modifier = Modifier
+    workoutState: WorkoutState,
+    intervalElapsedTime: Int = 0,
+    intervalRemainingTime: Int = 0,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -139,22 +139,30 @@ fun IntervalsList(
                 index = index,
                 isActive = isActive,
                 isCompleted = isCompleted,
-                isPaused =  isPaused,
-                progress = if (isActive) progress else 0f
+                isPaused = workoutState == WorkoutState.PAUSED,
+                isFinished = workoutState == WorkoutState.COMPLETED,
+                progress = if (isActive) (intervalElapsedTime / interval.time.toFloat()) else 0f,
+                intervalRemainingTime = intervalRemainingTime,
             )
+
+            if (index == intervals.lastIndex) {
+                Spacer(Modifier.height(40.dp))
+            }
         }
     }
 }
 
 @Composable
 fun IntervalItem(
+    modifier: Modifier = Modifier,
     interval: Interval,
     index: Int,
     isActive: Boolean,
     isPaused: Boolean,
     isCompleted: Boolean,
+    isFinished: Boolean,
     progress: Float,
-    modifier: Modifier = Modifier
+    intervalRemainingTime: Int = 0,
 ) {
     val progressColor = if (isPaused) {
         LocalExtraColors.current.orange.copy(alpha = 0.1f)
@@ -162,7 +170,7 @@ fun IntervalItem(
         LocalExtraColors.current.primaryLight
     }
     val borderColor = when {
-        isCompleted -> Color.Transparent
+        isCompleted || isFinished -> Color.Transparent
         isActive && isPaused -> LocalExtraColors.current.orange.copy(alpha = 0.2f)
         isActive -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         else -> Color.Transparent
@@ -184,8 +192,8 @@ fun IntervalItem(
             )
             .background(backgroundColor)
             .drawBehind {
-                if (isActive && progress > 0f) {
-                    val progressWidth = size.width * (progress / 100)
+                if (isActive && progress > 0f && !isFinished) {
+                    val progressWidth = size.width * progress
 
                     drawRect(
                         color = progressColor,
@@ -194,22 +202,6 @@ fun IntervalItem(
                 }
             },
     ) {
-        if (isActive && progress > 0f) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .fillMaxHeight()
-                    .fillMaxWidth(progress / 100)
-                    .background(
-                        if (isPaused) {
-                            LocalExtraColors.current.orange.copy(alpha = 0.1f)
-                        } else {
-                            LocalExtraColors.current.primaryLight
-                        }
-                    )
-            )
-        }
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -225,13 +217,13 @@ fun IntervalItem(
                     .background(
                         when {
                             isActive && isPaused -> LocalExtraColors.current.orange
-                            isCompleted -> Color.Transparent
+                            isCompleted || isFinished -> Color.Transparent
                             isActive -> MaterialTheme.colorScheme.primary
                             else -> LocalExtraColors.current.border
                         }
                     )
             ) {
-                if (!isCompleted) {
+                if (!isCompleted && !isFinished) {
                     Text(
                         modifier = Modifier
                             .align(Alignment.Center),
@@ -255,9 +247,9 @@ fun IntervalItem(
                 modifier = Modifier
                     .padding(start = LocalSpacing.current.m),
                 text = interval.title,
-                textDecoration = if (isCompleted) TextDecoration.LineThrough else null,
+                textDecoration = if (isCompleted || isFinished) TextDecoration.LineThrough else null,
                 style = MaterialTheme.typography.titleMedium,
-                color = if (isCompleted)
+                color = if (isCompleted || isFinished)
                     LocalExtraColors.current.textTertiary
                 else
                     MaterialTheme.colorScheme.onBackground
@@ -267,13 +259,13 @@ fun IntervalItem(
 
             Text(
                 modifier = Modifier,
-                text = formatDuration(interval.time),
+                text = formatDuration(if (isActive && !isFinished) intervalRemainingTime else interval.time),
                 style = LocalExtraTypography.current.mono.copy(
                     fontWeight = FontWeight.Bold
                 ),
                 color = when {
                     isActive && isPaused -> LocalExtraColors.current.orange
-                    isCompleted -> LocalExtraColors.current.textTertiary
+                    isCompleted || isFinished -> LocalExtraColors.current.textTertiary
                     isActive -> MaterialTheme.colorScheme.primary
                     else -> LocalExtraColors.current.textSecondary
                 }
@@ -364,7 +356,8 @@ fun WorkoutScreenButtonsLayout(
             visible = workoutState != WorkoutState.DEFAULT
         ) {
             GhostButton(
-                modifier = Modifier,
+                modifier = Modifier
+                    .padding(bottom = LocalSpacing.current.xxl),
                 text = stringResource(
                     when (workoutState) {
                         WorkoutState.COMPLETED -> R.string.workout_ghost_button_new_workout_title

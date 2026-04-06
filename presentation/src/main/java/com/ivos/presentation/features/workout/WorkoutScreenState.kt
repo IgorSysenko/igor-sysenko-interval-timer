@@ -4,8 +4,15 @@ import com.ivos.domain.model.Workout
 
 data class WorkoutScreenState(
     val workout: Workout = Workout(),
-    val workoutState: WorkoutState = WorkoutState.RUNNING
-)
+    val workoutState: WorkoutState = WorkoutState.DEFAULT,
+    val workoutProgress: WorkoutProgress = WorkoutProgress(),
+) {
+    val headerTimer
+        get() = if (workoutState != WorkoutState.DEFAULT) workoutProgress.remainingTime else workout.timer.totalTime
+
+    val mainTimer
+        get() = if (workoutState != WorkoutState.DEFAULT) workoutProgress.currentIntervalElapsed else workout.timer.totalTime
+}
 
 enum class WorkoutState {
     DEFAULT, RUNNING, PAUSED, COMPLETED

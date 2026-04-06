@@ -34,6 +34,11 @@ import com.ivos.presentation.theme.LocalExtraColors
 import com.ivos.presentation.theme.LocalExtraTypography
 import com.ivos.presentation.theme.LocalSpacing
 import com.ivos.presentation.utils.formatDuration
+import com.ivos.presentation.utils.getColorForBigTimer
+import com.ivos.presentation.utils.getColorForBigTimerText
+import com.ivos.presentation.utils.getDurationText
+import com.ivos.presentation.utils.getTextForBigTimerText
+import com.ivos.presentation.utils.getTextForHeader
 
 @Composable
 fun WorkoutScreen(
@@ -55,12 +60,7 @@ fun WorkoutScreen(
             onBackClick = navigate,
             endContent = {
                 WorkoutStateHeader(
-                    text = when (state.workoutState) {
-                        WorkoutState.DEFAULT -> formatDuration(state.workout.timer.totalTime)
-                        WorkoutState.RUNNING -> formatDuration(state.workout.timer.totalTime)
-                        WorkoutState.PAUSED -> stringResource(R.string.state_paused_header_text)
-                        WorkoutState.COMPLETED -> stringResource(R.string.state_completed_header_text)
-                    },
+                    text = getTextForHeader(state.workoutState, state.headerTimer),
                     state = state.workoutState,
                 )
             }
@@ -70,20 +70,9 @@ fun WorkoutScreen(
             workoutState = state.workoutState
         ) {
             Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                text = stringResource(when (state.workoutState) {
-                    WorkoutState.DEFAULT -> R.string.state_ready_to_start_card_title
-                    WorkoutState.RUNNING -> R.string.state_running_card_title
-                    WorkoutState.PAUSED -> R.string.state_paused_card_title
-                    WorkoutState.COMPLETED -> R.string.state_completed_card_title
-                }).uppercase(),
-                color = when (state.workoutState) {
-                    WorkoutState.DEFAULT -> LocalExtraColors.current.textTertiary
-                    WorkoutState.RUNNING -> MaterialTheme.colorScheme.primary
-                    WorkoutState.PAUSED -> LocalExtraColors.current.orange
-                    WorkoutState.COMPLETED -> MaterialTheme.colorScheme.secondary
-                },
+                modifier = Modifier.fillMaxWidth(),
+                text = getTextForBigTimerText(state.workoutState),
+                color = getColorForBigTimerText(state.workoutState),
                 textAlign = TextAlign.Center,
                 style = LocalExtraTypography.current.state,
             )
@@ -91,7 +80,17 @@ fun WorkoutScreen(
             Text(
                 modifier = Modifier
                     .padding(top = LocalSpacing.current.s),
-                text = state.workout.currentInterval.title,
+                text = if (state.workoutState == WorkoutState.COMPLETED) {
+                    stringResource(R.string.state_completed_card_desc)
+                } else {
+                    state.workout.timer.intervals
+                        .getOrNull(state.workoutProgress.currentIntervalIndex)?.title ?: ""
+                },
+                color = if (state.workoutState == WorkoutState.COMPLETED) {
+                    MaterialTheme.colorScheme.secondary
+                } else {
+                    MaterialTheme.colorScheme.onBackground
+                },
                 style = MaterialTheme.typography.labelLarge,
             )
 
@@ -100,32 +99,23 @@ fun WorkoutScreen(
             Text(
                 modifier = Modifier
                     .fillMaxWidth(),
-                text = when (state.workoutState) {
-                    WorkoutState.DEFAULT -> formatDuration(state.workout.timer.totalTime)
-                    WorkoutState.RUNNING -> formatDuration(state.workout.timer.totalTime)
-                    WorkoutState.PAUSED -> formatDuration(state.workout.timer.totalTime)
-                    WorkoutState.COMPLETED -> formatDuration(state.workout.timer.totalTime)
+                text = if (state.workoutState == WorkoutState.COMPLETED) {
+                    formatDuration(state.workoutProgress.remainingTime)
+                } else {
+                    formatDuration(state.mainTimer)
                 },
-                color = when (state.workoutState) {
-                    WorkoutState.DEFAULT -> MaterialTheme.colorScheme.onBackground
-                    WorkoutState.RUNNING -> MaterialTheme.colorScheme.primary
-                    WorkoutState.PAUSED -> LocalExtraColors.current.orange
-                    WorkoutState.COMPLETED -> MaterialTheme.colorScheme.secondary
-                },
+                color = getColorForBigTimer(state.workoutState),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.displayLarge,
             )
 
             Text(
                 modifier = Modifier,
-                text = if (state.workoutState == WorkoutState.DEFAULT) {
-                    stringResource(R.string.workout_duration_title)
-                } else {
-                    stringResource(
-                        id = R.string.workout_duration_text,
-                        formatDuration(state.workout.timer.totalTime), formatDuration(state.workout.timer.totalTime)
-                    )
-                },
+                text = getDurationText(
+                    workoutState = state.workoutState,
+                    elapsedTime = state.workoutProgress.elapsedTime,
+                    totalTime = state.workout.timer.totalTime
+                ),
                 style = LocalExtraTypography.current.mono,
                 color = LocalExtraColors.current.textTertiary
             )
@@ -133,15 +123,15 @@ fun WorkoutScreen(
             Spacer(Modifier.height(LocalSpacing.current.l))
 
             TimerProgressBar(
-                percent = 0.8f,
+                percent = state.workoutProgress.elapsedTime.toFloat() / (state.workout.timer.totalTime.takeIf { it > 0 } ?: 1),
                 workoutState = state.workoutState
             )
         }
 
         IntervalListHeaderRow(
             workoutState = state.workoutState,
-            intervalCount = 7,
-            completedIntervalCount = 3
+            intervalCount = state.workout.timer.intervals.size,
+            completedIntervalCount = state.workoutProgress.currentIntervalIndex
         )
 
         Box(
@@ -149,8 +139,10 @@ fun WorkoutScreen(
         ) {
             IntervalsList(
                 intervals = state.workout.timer.intervals,
-                isPaused = state.workoutState == WorkoutState.PAUSED,
-                currentIndex = 0,
+                workoutState = state.workoutState,
+                currentIndex = state.workoutProgress.currentIntervalIndex,
+                intervalElapsedTime = state.workoutProgress.currentIntervalElapsed,
+                intervalRemainingTime = state.workoutProgress.currentIntervalRemaining,
             )
 
             Box(
@@ -175,8 +167,23 @@ fun WorkoutScreen(
 
         WorkoutScreenButtonsLayout(
             workoutState = state.workoutState,
-            onPrimaryClick = {},
-            onGhostClick = {}
+            onPrimaryClick = {
+                viewModel.reduceState(
+                    when (state.workoutState) {
+                        WorkoutState.DEFAULT -> WorkoutEvent.StartWorkout
+                        WorkoutState.RUNNING -> WorkoutEvent.PauseWorkout
+                        WorkoutState.PAUSED -> WorkoutEvent.StartWorkout
+                        WorkoutState.COMPLETED -> WorkoutEvent.RestartWorkout
+                    }
+                )
+            },
+            onGhostClick = {
+                if (state.workoutState == WorkoutState.COMPLETED) {
+                    navigate()
+                } else {
+                    viewModel.reduceState(WorkoutEvent.ResetWorkout)
+                }
+            }
         )
     }
 }

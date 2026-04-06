@@ -17,24 +17,28 @@ class WorkoutApi  @Inject constructor(
             timer = TimerDto(
                 timerId = 68,
                 title = "Тренировка 7",
-                totalTime = 900,
+                totalTime = 20, //900,
                 intervals = listOf(
                     IntervalDto(
                         title = "Ходьба в среднем темпе",
-                        time = 300,
+                        //time = 300,
+                        time = 10,
                     ),
                     IntervalDto(
                         title = "Ходьба в интенсивном темпе",
-                        time = 300,
+                        //time = 300,
+                        time = 10,
                     ),
-                    IntervalDto(
+                    /*IntervalDto(
                         title = "Ходьба в среднем темпе",
-                        time = 120,
+                        //time = 120,
+                        time = 10,
                     ),
                     IntervalDto(
                         title = "Медленный бег",
-                        time = 30,
-                    ),
+                        //time = 30,
+                        time = 10,
+                    ),*/
                 )
             )
         )
