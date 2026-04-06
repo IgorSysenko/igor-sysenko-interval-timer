@@ -15,16 +15,11 @@ import javax.inject.Singleton
 class WorkoutRepoImpl @Inject constructor(
     private val api: WorkoutApi,
 ): WorkoutRepo {
-    /*override suspend fun getWorkoutById(id: Int) = try {
-        val dto = api.execute("$id")
-        Result.success(dto.toDomainModel())
-    } catch (e: Exception) {
-        Result.failure(e)
-    }*/
+
     private val _currentWorkout: MutableStateFlow<Workout?> = MutableStateFlow(null)
     override fun getCurrentWorkout(): StateFlow<Workout?> = _currentWorkout.asStateFlow()
 
-    override suspend fun getWorkoutById(id: Int) = safeApiRequest { api.execute("$id").toDomainModel() }
+    override suspend fun getWorkoutById(id: Long) = safeApiRequest { api.execute("$id").toDomainModel() }
     override fun setCurrentWorkout(workout: Workout): Result<Unit> {
         _currentWorkout.value = workout
         return Result.success(Unit)

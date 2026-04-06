@@ -1,5 +1,6 @@
 package com.ivos.presentation.activity
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -16,18 +17,23 @@ fun ScreenContainer(
     navHost: @Composable () -> Unit,
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
         Scaffold(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(horizontal = LocalSpacing.current.xxl),
             containerColor = MaterialTheme.colorScheme.background,
         ) {
-            navHost()
-            it
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+            ) {
+                navHost()
+            }
         }
     }
 }

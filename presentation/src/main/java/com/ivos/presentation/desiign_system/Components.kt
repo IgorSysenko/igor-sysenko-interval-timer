@@ -121,7 +121,9 @@ fun IntervalsList(
     modifier: Modifier = Modifier,
     intervals: List<Interval>,
     currentIndex: Int,
-    workoutState: WorkoutState,
+    isWorkoutPaused: Boolean,
+    isWorkoutFinished: Boolean,
+    isWorkoutRunning: Boolean,
     intervalElapsedTime: Int = 0,
     intervalRemainingTime: Int = 0,
 ) {
@@ -139,8 +141,9 @@ fun IntervalsList(
                 index = index,
                 isActive = isActive,
                 isCompleted = isCompleted,
-                isPaused = workoutState == WorkoutState.PAUSED,
-                isFinished = workoutState == WorkoutState.COMPLETED,
+                isWorkoutPaused = isWorkoutPaused,
+                isWorkoutRunning = isWorkoutRunning,
+                isWorkoutFinished = isWorkoutFinished,
                 progress = if (isActive) (intervalElapsedTime / interval.time.toFloat()) else 0f,
                 intervalRemainingTime = intervalElapsedTime, //intervalRemainingTime?
             )
@@ -158,20 +161,21 @@ fun IntervalItem(
     interval: Interval,
     index: Int,
     isActive: Boolean,
-    isPaused: Boolean,
+    isWorkoutPaused: Boolean,
+    isWorkoutFinished: Boolean,
+    isWorkoutRunning: Boolean,
     isCompleted: Boolean,
-    isFinished: Boolean,
     progress: Float,
     intervalRemainingTime: Int = 0,
 ) {
-    val progressColor = if (isPaused) {
+    val progressColor = if (isWorkoutPaused) {
         LocalExtraColors.current.orange.copy(alpha = 0.1f)
     } else {
         LocalExtraColors.current.primaryLight
     }
     val borderColor = when {
-        isCompleted || isFinished -> Color.Transparent
-        isActive && isPaused -> LocalExtraColors.current.orange.copy(alpha = 0.2f)
+        isCompleted || isWorkoutFinished -> Color.Transparent
+        isActive && isWorkoutPaused -> LocalExtraColors.current.orange.copy(alpha = 0.2f)
         isActive -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         else -> Color.Transparent
     }
@@ -192,7 +196,7 @@ fun IntervalItem(
             )
             .background(backgroundColor)
             .drawBehind {
-                if (isActive && progress > 0f && !isFinished) {
+                if (isActive && progress > 0f && !isWorkoutFinished) {
                     val progressWidth = size.width * progress
 
                     drawRect(
@@ -216,14 +220,14 @@ fun IntervalItem(
                     .clip(MaterialTheme.shapes.extraLarge)
                     .background(
                         when {
-                            isActive && isPaused -> LocalExtraColors.current.orange
-                            isCompleted || isFinished -> Color.Transparent
+                            isActive && isWorkoutPaused -> LocalExtraColors.current.orange
+                            isCompleted || isWorkoutFinished -> Color.Transparent
                             isActive -> MaterialTheme.colorScheme.primary
                             else -> LocalExtraColors.current.border
                         }
                     )
             ) {
-                if (!isCompleted && !isFinished) {
+                if (!isCompleted && !isWorkoutFinished) {
                     Text(
                         modifier = Modifier
                             .align(Alignment.Center),
@@ -238,7 +242,9 @@ fun IntervalItem(
                             .align(Alignment.Center),
                         imageVector = Icons.Default.Done,
                         contentDescription = null,
-                        tint = LocalExtraColors.current.textTertiary
+                        tint = if (isWorkoutFinished) {
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                        } else LocalExtraColors.current.textTertiary
                     )
                 }
             }
@@ -247,9 +253,9 @@ fun IntervalItem(
                 modifier = Modifier
                     .padding(start = LocalSpacing.current.m),
                 text = interval.title,
-                textDecoration = if (isCompleted || isFinished) TextDecoration.LineThrough else null,
+                textDecoration = if (isCompleted || isWorkoutFinished) TextDecoration.LineThrough else null,
                 style = MaterialTheme.typography.titleMedium,
-                color = if (isCompleted || isFinished)
+                color = if (isCompleted || isWorkoutFinished)
                     LocalExtraColors.current.textTertiary
                 else
                     MaterialTheme.colorScheme.onBackground
@@ -259,13 +265,13 @@ fun IntervalItem(
 
             Text(
                 modifier = Modifier,
-                text = formatDuration(if (isActive && !isFinished) intervalRemainingTime else interval.time),
+                text = formatDuration(if (isActive && (isWorkoutRunning || isWorkoutPaused) && !isWorkoutFinished) intervalRemainingTime else interval.time),
                 style = LocalExtraTypography.current.mono.copy(
                     fontWeight = FontWeight.Bold
                 ),
                 color = when {
-                    isActive && isPaused -> LocalExtraColors.current.orange
-                    isCompleted || isFinished -> LocalExtraColors.current.textTertiary
+                    isActive && isWorkoutPaused -> LocalExtraColors.current.orange
+                    isCompleted || isWorkoutFinished -> LocalExtraColors.current.textTertiary
                     isActive -> MaterialTheme.colorScheme.primary
                     else -> LocalExtraColors.current.textSecondary
                 }

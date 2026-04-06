@@ -1,5 +1,6 @@
 package com.ivos.presentation.features.workout
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,15 +50,15 @@ fun WorkoutScreen(
     val viewModel: WorkoutViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    BackHandler { navigate() }
+
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         WorkoutScreenTopBar(
-            modifier = Modifier
-                .padding(top = LocalSpacing.current.xxl),
+            modifier = Modifier.padding(top = LocalSpacing.current.xxl),
             headerText = state.workout.timer.title,
             onBackClick = navigate,
             endContent = {
@@ -82,13 +83,13 @@ fun WorkoutScreen(
             Text(
                 modifier = Modifier
                     .padding(top = LocalSpacing.current.s),
-                text = if (state.workoutState == WorkoutState.COMPLETED) {
+                text = if (state.workoutFinished) {
                     stringResource(R.string.state_completed_card_desc)
                 } else {
                     state.workout.timer.intervals
                         .getOrNull(state.workoutProgress.currentIntervalIndex)?.title ?: ""
                 },
-                color = if (state.workoutState == WorkoutState.COMPLETED) {
+                color = if (state.workoutFinished) {
                     MaterialTheme.colorScheme.secondary
                 } else {
                     MaterialTheme.colorScheme.onBackground
@@ -101,11 +102,7 @@ fun WorkoutScreen(
             Text(
                 modifier = Modifier
                     .fillMaxWidth(),
-                text = if (state.workoutState == WorkoutState.COMPLETED) {
-                    formatDuration(state.workoutProgress.remainingTime)
-                } else {
-                    formatDuration(state.mainTimer)
-                },
+                text = formatDuration(if (state.workoutFinished) state.workoutProgress.remainingTime else state.mainTimer),
                 color = getColorForBigTimer(state.workoutState),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.displayLarge,
@@ -131,7 +128,7 @@ fun WorkoutScreen(
         }
 
         AnimatedVisibility(
-            visible = state.workoutState == WorkoutState.COMPLETED
+            visible = state.workoutFinished
         ) {
             CompletedWorkoutTabsRow(
                 totalTime = state.workout.timer.totalTime,
@@ -150,7 +147,9 @@ fun WorkoutScreen(
         ) {
             IntervalsList(
                 intervals = state.workout.timer.intervals,
-                workoutState = state.workoutState,
+                isWorkoutPaused = state.workoutPaused,
+                isWorkoutRunning = state.workoutRunning,
+                isWorkoutFinished = state.workoutFinished,
                 currentIndex = state.workoutProgress.currentIntervalIndex,
                 intervalElapsedTime = state.workoutProgress.currentIntervalElapsed,
                 intervalRemainingTime = state.workoutProgress.currentIntervalRemaining,
@@ -189,7 +188,7 @@ fun WorkoutScreen(
                 )
             },
             onGhostClick = {
-                if (state.workoutState == WorkoutState.COMPLETED) {
+                if (state.workoutFinished) {
                     navigate()
                 } else {
                     viewModel.reduceState(WorkoutEvent.ResetWorkout)

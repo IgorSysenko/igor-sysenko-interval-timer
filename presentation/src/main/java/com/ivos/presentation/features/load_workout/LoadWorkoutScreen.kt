@@ -1,11 +1,14 @@
 package com.ivos.presentation.features.load_workout
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -19,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,21 +48,22 @@ fun LoadWorkoutScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Spacer(modifier = Modifier.weight(0.5f))
+
         Box(
             modifier = Modifier
-                .padding(top = 120.dp)
                 .size(72.dp)
                 .clip(MaterialTheme.shapes.large)
                 .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                modifier = Modifier
-                    .size(40.dp),
+                modifier = Modifier.size(40.dp),
                 imageVector = Icons.Default.AccessTime,
                 tint = MaterialTheme.colorScheme.surface,
                 contentDescription = stringResource(R.string.app_icon_cd),
@@ -66,16 +71,14 @@ fun LoadWorkoutScreen(
         }
 
         Text(
-            modifier = Modifier
-                .padding(top = 40.dp),
+            modifier = Modifier.padding(top = 40.dp),
             text = stringResource(R.string.interval_timer_title),
             style = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Center
         )
 
         Text(
-            modifier = Modifier
-                .padding(top = LocalSpacing.current.l),
+            modifier = Modifier.padding(top = LocalSpacing.current.l),
             text = stringResource(R.string.interval_timer_desc),
             color = LocalExtraColors.current.textSecondary,
             style = MaterialTheme.typography.bodyMedium,
@@ -98,7 +101,7 @@ fun LoadWorkoutScreen(
             isError = state.isError,
             enabled = !state.isLoading,
             onValueChange = {
-                if (it.isDigitsOnly()) {
+                if (it.isDigitsOnly() && it.length < MAX_ID_LENGTH) {
                     viewModel.reduceState(LoadWorkoutEvent.SetId(it))
                 }
             }
@@ -126,5 +129,7 @@ fun LoadWorkoutScreen(
                 viewModel.reduceState(LoadWorkoutEvent.StartLoading)
             }
         )
+
+        Spacer(modifier = Modifier.weight(2f))
     }
 }

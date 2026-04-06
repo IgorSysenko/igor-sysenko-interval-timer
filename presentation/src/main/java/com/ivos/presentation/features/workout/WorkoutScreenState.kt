@@ -12,6 +12,15 @@ data class WorkoutScreenState(
 
     val mainTimer
         get() = if (workoutState != WorkoutState.DEFAULT) workoutProgress.currentIntervalElapsed else workout.timer.totalTime
+
+    val workoutRunning
+        get() = workoutState == WorkoutState.RUNNING
+
+    val workoutPaused
+        get() = workoutState == WorkoutState.PAUSED
+
+    val workoutFinished
+        get() = workoutState == WorkoutState.COMPLETED
 }
 
 enum class WorkoutState {

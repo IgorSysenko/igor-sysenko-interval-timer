@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface WorkoutRepo {
     fun getCurrentWorkout(): StateFlow<Workout?>
-    suspend fun getWorkoutById(id: Int): Result<Workout>
+    suspend fun getWorkoutById(id: Long): Result<Workout>
     fun setCurrentWorkout(workout: Workout): Result<Unit>
 }

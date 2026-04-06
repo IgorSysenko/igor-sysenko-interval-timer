@@ -9,3 +9,5 @@ data class LoadWorkoutScreenState(
     val workoutId: String = "68",
     val workout: Workout? = null,
 )
+
+const val MAX_ID_LENGTH = 20
