@@ -45,7 +45,7 @@ class LoadWorkoutViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            delay(2000)
+            delay(1000)
             /*_state.update {
                 it.copy(
                     isError = true,
@@ -54,7 +54,6 @@ class LoadWorkoutViewModel @Inject constructor(
             }*/
             getWorkoutUseCase(_state.value.workoutId.toInt())
                 .onSuccess {
-                    println("workout $it")
                     saveWorkout(workout = it)
                 }
                 .onFailure {

@@ -51,7 +51,7 @@ fun LoadWorkoutScreen(
         Box(
             modifier = Modifier
                 .padding(top = 120.dp)
-                .size(80.dp)
+                .size(72.dp)
                 .clip(MaterialTheme.shapes.large)
                 .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center
@@ -121,6 +121,7 @@ fun LoadWorkoutScreen(
                 }
             ),
             enabled = !state.isLoading,
+            isLoading = state.isLoading,
             onClick = {
                 viewModel.reduceState(LoadWorkoutEvent.StartLoading)
             }

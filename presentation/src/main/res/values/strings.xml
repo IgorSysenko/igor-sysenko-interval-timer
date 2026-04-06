@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--loading screen-->
     <string name="app_icon_cd">Иконка приложения</string>
     <string name="error_icon_cd">Иконка ошибки</string>
     <string name="interval_timer_title">Интервальный\n таймер</string>
@@ -9,4 +10,29 @@
     <string name="loading_in_progress_button_title">Загрузка...</string>
     <string name="rerty_load_button_title">Повторить</string>
     <string name="load_error_text">Тренировка не найдена. Проверьте ID.</string>
+
+    <!--workout screen-->
+    <string name="state_paused_header_text">Пауза</string>
+    <string name="state_completed_header_text">Завершена</string>
+    <string name="state_ready_to_start_card_title">Готово к старту</string>
+    <string name="state_running_card_title">Выполняется</string>
+    <string name="state_paused_card_title">На паузе</string>
+    <string name="state_completed_card_title">Тренировка завершена</string>
+    <string name="state_completed_card_desc">Отличная работа!</string>
+    
+    <string name="workout_duration_text">Прошло %s из %s</string>
+    <string name="workout_duration_title">Общее время</string>
+
+    <string name="intervals_list_header_text">Интервалы</string>
+    <string name="intervals_list_count_1">Интервал</string>
+    <string name="intervals_list_count_2_4">Интервала</string>
+    <string name="intervals_list_count_many">Интервалов</string>
+    <string name="intervals_list_completed_count">%s из %s</string>
+
+    <string name="workout_button_start_title">Старт</string>
+    <string name="workout_button_pause_title">Пауза</string>
+    <string name="workout_button_continue_title">Продолжить</string>
+    <string name="workout_button_completed_title">Запустить заново</string>
+    <string name="workout_ghost_button_reset_title">Сбросить</string>
+    <string name="workout_ghost_button_new_workout_title">Новая тренировка</string>
 </resources>

@@ -24,9 +24,6 @@ fun ScreenContainer(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .padding(horizontal = LocalSpacing.current.xxl),
-            topBar = {
-
-            },
             containerColor = MaterialTheme.colorScheme.background,
         ) {
             navHost()

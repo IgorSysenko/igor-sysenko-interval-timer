@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ivos.presentation.theme.LocalExtraColors
 import com.ivos.presentation.theme.LocalExtraTypography
@@ -23,7 +25,16 @@ fun PrimaryButton(
     modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
+
     enabled: Boolean = true,
+    isLoading: Boolean = false,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    disabledContainerColor: Color = LocalExtraColors.current.primaryLight,
+    disabledContentColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+    borderColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+
+    icon: @Composable () -> Unit = {}
 ) {
     Button(
         modifier = modifier
@@ -34,16 +45,16 @@ fun PrimaryButton(
         enabled = enabled,
         shape = MaterialTheme.shapes.small,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor =  MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = LocalExtraColors.current.primaryLight,
-            disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+            containerColor = containerColor,
+            contentColor =  contentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
         ),
         border = if (!enabled) {
-            BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+            BorderStroke(1.5.dp, borderColor)
         } else null,
     ) {
-        if (!enabled) {
+        if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier
                     .padding(end = LocalSpacing.current.m)
@@ -53,9 +64,47 @@ fun PrimaryButton(
             )
         }
 
+        icon()
+
         Text(
             text = text,
-            style = LocalExtraTypography.current.button
+            style = LocalExtraTypography.current.button.copy(
+                fontWeight = FontWeight.Bold,
+            )
+        )
+    }
+}
+
+@Composable
+fun GhostButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    onClick: () -> Unit,
+
+    enabled: Boolean = true,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    borderColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+) {
+    Button(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .alpha(if (!enabled) 0.7f else 1f),
+        onClick = onClick,
+        enabled = enabled,
+        shape = MaterialTheme.shapes.small,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor =  contentColor,
+        ),
+        border = BorderStroke(1.5.dp, borderColor),
+    ) {
+        Text(
+            text = text,
+            style = LocalExtraTypography.current.button.copy(
+                fontWeight = FontWeight.Bold,
+            )
         )
     }
 }
