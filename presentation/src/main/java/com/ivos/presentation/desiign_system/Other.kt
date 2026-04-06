@@ -68,7 +68,10 @@ fun IntervalListHeaderRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = LocalSpacing.current.xl),
+            .padding(
+                top = LocalSpacing.current.xl,
+                bottom = LocalSpacing.current.xs,
+            ),
     ) {
         Text(
             modifier = Modifier,

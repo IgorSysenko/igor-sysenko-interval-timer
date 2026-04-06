@@ -3,6 +3,7 @@ package com.ivos.presentation.features.workout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivos.domain.model.Interval
+import com.ivos.domain.sound_manager.SoundManager
 import com.ivos.domain.usecase.GetCurrentWorkoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WorkoutViewModel@Inject constructor(
+    private val soundManager: SoundManager,
     private val getCurrentWorkoutUseCase: GetCurrentWorkoutUseCase,
 ) : ViewModel() {
 
@@ -25,6 +27,8 @@ class WorkoutViewModel@Inject constructor(
     val state: StateFlow<WorkoutScreenState> = _state.asStateFlow()
 
     private var timerJob: Job? = null
+    private var lastIntervalIndex = -1
+    private var hasStarted = false
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -61,6 +65,11 @@ class WorkoutViewModel@Inject constructor(
 
         _state.update { it.copy(workoutState = WorkoutState.RUNNING) }
 
+        if (!hasStarted) {
+            soundManager.playBeep()
+            hasStarted = true
+        }
+
         timerJob = viewModelScope.launch {
             while (this.isActive) {
                 delay(1000)
@@ -75,6 +84,8 @@ class WorkoutViewModel@Inject constructor(
     }
 
     private fun resetWorkout() {
+        hasStarted = false
+        lastIntervalIndex = -1
         timerJob?.cancel()
         _state.value = WorkoutScreenState(
             workout = state.value.workout,
@@ -102,6 +113,13 @@ class WorkoutViewModel@Inject constructor(
                     )
                 )
             }
+
+            soundManager.playBeep()
+            delay(1000)
+            soundManager.playBeep()
+
+            hasStarted = false
+            lastIntervalIndex = -1
             timerJob?.cancel()
             return
         }
@@ -117,6 +135,11 @@ class WorkoutViewModel@Inject constructor(
             }
             accumulated += intervalTime
         }
+
+        if (index != lastIntervalIndex && lastIntervalIndex != -1) {
+            soundManager.playBeep()
+        }
+        lastIntervalIndex = index
 
         val currentInterval = intervals[index]
         val intervalElapsed = elapsed - accumulated
