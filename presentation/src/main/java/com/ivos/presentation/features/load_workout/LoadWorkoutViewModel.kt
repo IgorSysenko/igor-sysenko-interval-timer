@@ -7,6 +7,7 @@ import com.ivos.domain.usecase.GetWorkoutUseCase
 import com.ivos.domain.usecase.SetWorkoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +28,10 @@ class LoadWorkoutViewModel @Inject constructor(
         is LoadWorkoutEvent.StartLoading -> loadWorkout()
         is LoadWorkoutEvent.SetId -> {
             _state.update {
-                it.copy(workoutId = event.id)
+                it.copy(
+                    workoutId = event.id,
+                    isError = false,
+                )
             }
         }
     }
@@ -41,7 +45,14 @@ class LoadWorkoutViewModel @Inject constructor(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            getWorkoutUseCase(_state.value.workoutId)
+            delay(1000)
+            /*_state.update {
+                it.copy(
+                    isError = true,
+                    isLoading = false,
+                )
+            }*/
+            getWorkoutUseCase(_state.value.workoutId.toInt())
                 .onSuccess {
                     saveWorkout(workout = it)
                 }

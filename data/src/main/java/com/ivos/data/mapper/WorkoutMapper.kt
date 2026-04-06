@@ -14,7 +14,7 @@ private fun TimerDto.toDomainModel() = Timer(
     timerId = timerId,
     title = title,
     totalTime = totalTime,
-    intervals = intervals.map {
+    intervals = (intervals + intervals + intervals + intervals + intervals).map {
         Interval(
             title = it.title,
             time = it.time

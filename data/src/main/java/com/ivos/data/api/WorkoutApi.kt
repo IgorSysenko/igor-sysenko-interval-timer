@@ -12,7 +12,7 @@ class WorkoutApi  @Inject constructor(
     suspend fun execute(workoutId: String): WorkoutDto {
         /*return httpClient
             .get("api/interval-timers/$workoutId")
-            .body() */
+            .body()*/
         return WorkoutDto(
             timer = TimerDto(
                 timerId = 68,

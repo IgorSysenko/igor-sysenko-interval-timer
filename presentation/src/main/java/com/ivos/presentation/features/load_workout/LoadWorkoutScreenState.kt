@@ -6,6 +6,6 @@ data class LoadWorkoutScreenState(
     val isLoading: Boolean = false,
     val isError: Boolean = false,
     val isLoaded: Boolean = false,
-    val workoutId: Int = 0,
+    val workoutId: String = "68",
     val workout: Workout? = null,
 )
